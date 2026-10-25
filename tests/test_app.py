@@ -105,7 +105,7 @@ class WebAppTests(unittest.TestCase):
                 break
             time.sleep(0.05)
         self.assertIsNotNone(status)
-        self.assertEqual(status["status"], "completed")
+        self.assertEqual(status["status"], "completed", msg=status)
         self.assertEqual(status["successes"], 1)
         self.assertTrue(status["result_available"])
 
