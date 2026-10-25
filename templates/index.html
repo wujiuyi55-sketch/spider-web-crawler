@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="输入网址，采集网页标题、正文、链接、图片与表格，并导出为 JSON 或 CSV。">
+  <meta name="color-scheme" content="light">
+  <title>蛛网 · 网页数据采集器</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+  <div class="page-grid" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="蛛网首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.25">
+          <circle cx="16" cy="16" r="13"></circle>
+          <circle cx="16" cy="16" r="8"></circle>
+          <circle cx="16" cy="16" r="3"></circle>
+          <path d="M16 3v26M3 16h26M6.8 6.8l18.4 18.4M25.2 6.8L6.8 25.2"></path>
+        </svg>
+      </span>
+      <span class="brand-type">
+        <strong>蛛网</strong>
+        <small>WEB CRAWLER</small>
+      </span>
+    </a>
+    <div class="topbar-meta">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span>本地运行</span>
+      <span class="meta-divider" aria-hidden="true"></span>
+      <span class="version">v{{ version }}</span>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <p class="eyebrow"><span>01</span> INPUT → CRAWL → EXPORT</p>
+        <h1 id="heroTitle">把网页，变成<br><mark>可用的数据。</mark></h1>
+        <p class="hero-lead">
+          输入一个网址，选择采集深度。抓取标题、正文、链接、图片与表格，
+          整理成结构化数据，一键导出 JSON 或 CSV。
+        </p>
+      </div>
+      <ol class="hero-steps" aria-label="使用步骤">
+        <li><span>01</span><p>输入网址</p></li>
+        <li><span>02</span><p>设定范围</p></li>
+        <li><span>03</span><p>导出数据</p></li>
+      </ol>
+      <svg class="hero-web" viewBox="0 0 340 340" fill="none" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="1">
+          <path d="M170 10v320M10 170h320M56 56l228 228M284 56L56 284M96 25l148 290M25 96l290 148M244 25L96 315M315 96L25 244"></path>
+          <circle cx="170" cy="170" r="45"></circle>
+          <circle cx="170" cy="170" r="86"></circle>
+          <circle cx="170" cy="170" r="128"></circle>
+          <circle cx="170" cy="170" r="165"></circle>
+        </g>
+      </svg>
+    </section>
+
+    <section class="workspace" aria-labelledby="formTitle">
+      <h2 id="formTitle" class="sr-only">新建采集任务</h2>
+      <form id="crawlForm" novalidate>
+        <div class="url-box">
+          <span class="url-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z"></path>
+            </svg>
+          </span>
+          <label class="sr-only" for="urlInput">要采集的网址</label>
+          <input
+            id="urlInput"
+            name="url"
+            type="text"
+            inputmode="url"
+            autocomplete="url"
+            spellcheck="false"
+            placeholder="https://example.com"
+            aria-describedby="urlHint"
+          >
+          <button class="btn btn-primary" id="startBtn" type="submit">
+            <span class="btn-label">开始采集</span>
+            <span class="btn-arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M4 10h11M11 5l5 5-5 5"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <div class="form-controls">
+          <fieldset class="depth-picker">
+            <legend>采集深度</legend>
+            <div class="segment">
+              <label>
+                <input type="radio" name="depth" value="1">
+                <span>仅当前页</span>
+              </label>
+              <label>
+                <input type="radio" name="depth" value="2" checked>
+                <span>一层链接</span>
+              </label>
+              <label>
+                <input type="radio" name="depth" value="3">
+                <span>两层链接</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="mini-field">
+            <label for="maxPages">最多页面</label>
+            <div class="number-box">
+              <input id="maxPages" name="max_pages" type="number" min="1" max="50" step="1" value="10">
+              <span>页</span>
+            </div>
+          </div>
+
+          <div class="mini-field">
+            <label for="delay">请求间隔</label>
+            <div class="number-box">
+              <input id="delay" name="delay" type="number" min="0" max="10" step="0.1" value="0.6">
+              <span>秒</span>
+            </div>
+          </div>
+        </div>
+
+        <details class="advanced">
+          <summary>
+            <span>高级设置</span>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="m4 6 4 4 4-4"></path>
+            </svg>
+          </summary>
+          <div class="advanced-grid">
+            <label class="check-card">
+              <input type="checkbox" id="sameSite" checked>
+              <span class="check-mark" aria-hidden="true"></span>
+              <span>
+                <strong>仅采集同站点链接</strong>
+                <small>不会跟随到其他域名，推荐开启</small>
+              </span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" id="respectRobots" checked>
+              <span class="check-mark" aria-hidden="true"></span>
+              <span>
+                <strong>遵守 robots.txt</strong>
+                <small>尊重网站声明的抓取范围</small>
+              </span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" id="allowPrivate">
+              <span class="check-mark" aria-hidden="true"></span>
+              <span>
+                <strong>允许访问内网地址</strong>
+                <small>用于采集本机或局域网页面</small>
+              </span>
+            </label>
+            <label class="check-card">
+              <input type="checkbox" id="ignoreSsl">
+              <span class="check-mark" aria-hidden="true"></span>
+              <span>
+                <strong>忽略 HTTPS 证书错误</strong>
+                <small>仅在信任目标站点时使用</small>
+              </span>
+            </label>
+            <div class="timeout-card">
+              <label for="timeout">请求超时</label>
+              <div class="number-box">
+                <input id="timeout" name="timeout" type="number" min="3" max="60" step="1" value="15">
+                <span>秒</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="form-foot">
+          <p id="urlHint">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <path d="M8 1.5 14 4v4c0 3.2-2.4 5.8-6 6.5C4.4 13.8 2 11.2 2 8V4l6-2.5Z"></path>
+              <path d="m5.6 8 1.6 1.6 3.2-3.2"></path>
+            </svg>
+            默认开启内网保护、robots.txt 与请求限速。
+          </p>
+          <p class="form-note">请遵守目标网站的使用条款。</p>
+        </div>
+      </form>
+    </section>
+
+    <div id="errorBanner" class="banner" role="alert" hidden>
+      <span class="banner-icon" aria-hidden="true">!</span>
+      <p id="errorText"></p>
+      <button type="button" id="dismissError" class="banner-close" aria-label="关闭错误提示">×</button>
+    </div>
+
+    <section id="progressSection" class="progress-card" hidden>
+      <div class="progress-top">
+        <div class="radar" id="radar" aria-hidden="true">
+          <span class="radar-ring"></span>
+          <span class="radar-ring"></span>
+          <span class="radar-sweep"></span>
+          <span class="radar-dot"></span>
+        </div>
+        <div class="progress-copy">
+          <p class="progress-kicker" id="progressKicker">正在采集</p>
+          <h2 id="progressTitle">正在连接目标网站…</h2>
+          <p class="progress-url" id="progressUrl"></p>
+        </div>
+        <button type="button" class="btn btn-stop" id="cancelBtn">
+          <span class="stop-square" aria-hidden="true"></span>
+          停止采集
+        </button>
+      </div>
+
+      <div class="progress-track">
+        <progress id="progressBar" max="100" value="0" aria-label="采集进度">0%</progress>
+      </div>
+      <div class="progress-labels">
+        <span id="progressFraction">0 / 10 页</span>
+        <span id="progressPercent">0%</span>
+      </div>
+
+      <dl class="progress-stats">
+        <div><dt>已处理</dt><dd id="statDone">0</dd></div>
+        <div><dt>成功</dt><dd id="statSuccess">0</dd></div>
+        <div><dt>失败</dt><dd id="statError">0</dd></div>
+        <div><dt>用时</dt><dd id="statTime">0.0s</dd></div>
+      </dl>
+      <p class="progress-message" id="progressMessage" aria-live="polite">正在准备请求…</p>
+      <div class="progress-warnings" id="progressWarnings" hidden></div>
+    </section>
+
+    <section id="resultSection" class="results" hidden aria-labelledby="resultTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow"><span>03</span> RESULT</p>
+          <h2 id="resultTitle">采集结果</h2>
+          <p class="result-meta" id="resultMeta"></p>
+        </div>
+        <div class="download-actions">
+          <a class="btn btn-download" id="downloadJson" href="#" download>
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <path d="M9 2v9M5.5 8 9 11.5 12.5 8M3 14.5h12"></path>
+            </svg>
+            JSON
+          </a>
+          <a class="btn btn-download" id="downloadCsv" href="#" download>
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <path d="M9 2v9M5.5 8 9 11.5 12.5 8M3 14.5h12"></path>
+            </svg>
+            CSV
+          </a>
+        </div>
+      </div>
+
+      <div class="result-toolbar">
+        <div class="summary-chips" id="summaryChips"></div>
+        <label class="filter-box">
+          <span class="sr-only">筛选结果</span>
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="8" cy="8" r="5"></circle>
+            <path d="m12 12 4 4"></path>
+          </svg>
+          <input id="resultFilter" type="search" placeholder="筛选标题或网址">
+        </label>
+      </div>
+
+      <div class="table-wrap">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th scope="col">页面</th>
+              <th scope="col">字数</th>
+              <th scope="col">链接</th>
+              <th scope="col">图片</th>
+              <th scope="col">状态</th>
+              <th scope="col"><span class="sr-only">操作</span></th>
+            </tr>
+          </thead>
+          <tbody id="resultRows"></tbody>
+        </table>
+        <div id="noResults" class="no-results" hidden>
+          <p>没有匹配的页面</p>
+          <button type="button" id="clearFilter" class="text-button">清除筛选</button>
+        </div>
+      </div>
+
+      <details class="issues" id="errorDetails" hidden>
+        <summary><span id="errorSummary">失败记录</span><span class="issue-chevron">＋</span></summary>
+        <ul id="errorList" class="issue-list"></ul>
+      </details>
+
+      <details class="issues" id="warningDetails" hidden>
+        <summary><span id="warningSummary">提示</span><span class="issue-chevron">＋</span></summary>
+        <ul id="warningList" class="issue-list warning-list"></ul>
+      </details>
+    </section>
+
+    <section class="idle" id="idleSection" aria-labelledby="idleTitle">
+      <div class="idle-head">
+        <p class="eyebrow"><span>02</span> WHAT YOU GET</p>
+        <h2 id="idleTitle">一次采集，得到完整页面档案</h2>
+        <p>不只是把网页保存下来，而是把页面拆成可以检索、筛选和导出的数据。</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature">
+          <span class="feature-num">A</span>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M5 3h11l3 3v15H5V3Z"></path>
+              <path d="M15 3v4h4M8 11h8M8 15h8M8 19h5"></path>
+            </svg>
+          </div>
+          <h3>正文与结构</h3>
+          <p>标题、描述、多级标题、正文、表格、元信息与 JSON-LD，一次整理清楚。</p>
+        </article>
+        <article class="feature">
+          <span class="feature-num">B</span>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <circle cx="12" cy="12" r="8.5"></circle>
+              <path d="M3.5 12h17M12 3.5c2.4 2.6 3.6 5.4 3.6 8.5S14.4 18 12 20.5C9.6 18 8.4 15.1 8.4 12S9.6 6.1 12 3.5Z"></path>
+            </svg>
+          </div>
+          <h3>链接与媒体</h3>
+          <p>页面内外的链接、nofollow 标记、图片地址与 alt 文本，全部结构化保存。</p>
+        </article>
+        <article class="feature">
+          <span class="feature-num">C</span>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M12 3v12M8 11l4 4 4-4"></path>
+              <path d="M4 17v3h16v-3"></path>
+            </svg>
+          </div>
+          <h3>可用的导出</h3>
+          <p>完整数据保存为 JSON，页面概览写入 CSV，可直接交给脚本或表格工具。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>蛛网</strong> · 数据只保存在你的电脑上</p>
+    <p>使用前请确认你有权采集目标内容，并遵守网站条款。</p>
+  </footer>
+
+  <dialog id="detailDialog" class="detail-dialog" aria-labelledby="detailTitle">
+    <div class="dialog-head">
+      <div class="dialog-heading">
+        <p class="eyebrow">PAGE DETAIL</p>
+        <h2 id="detailTitle">页面详情</h2>
+        <a id="detailUrl" class="dialog-url" href="#" target="_blank" rel="noopener noreferrer"></a>
+      </div>
+      <button type="button" id="closeDialog" class="icon-button" aria-label="关闭详情">×</button>
+    </div>
+    <div id="detailBody" class="dialog-body"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
