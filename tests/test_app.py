@@ -1,3 +1,4 @@
+import http.client
 import tempfile
 import threading
 import time
@@ -41,8 +42,21 @@ class WebAppTests(unittest.TestCase):
             target=cls.server.serve_forever, daemon=True
         )
         cls.thread.start()
-        # 给本地测试服务器一点时间进入 accept 循环，避免 CI 上的启动竞态。
-        time.sleep(0.1)
+        # 等待测试服务器真正能处理 HTTP 请求，避免 CI 上的启动竞态。
+        for _ in range(50):
+            try:
+                connection = http.client.HTTPConnection(
+                    "127.0.0.1", cls.port, timeout=0.5
+                )
+                connection.request("GET", "/")
+                response = connection.getresponse()
+                response.read()
+                connection.close()
+                break
+            except OSError:
+                time.sleep(0.02)
+        else:
+            raise RuntimeError("test HTTP server did not become ready")
         cls.tempdir = tempfile.TemporaryDirectory()
         cls.app = create_app(Path(cls.tempdir.name), max_workers=1)
         cls.app.testing = True
