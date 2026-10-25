@@ -41,6 +41,8 @@ class WebAppTests(unittest.TestCase):
             target=cls.server.serve_forever, daemon=True
         )
         cls.thread.start()
+        # 给本地测试服务器一点时间进入 accept 循环，避免 CI 上的启动竞态。
+        time.sleep(0.1)
         cls.tempdir = tempfile.TemporaryDirectory()
         cls.app = create_app(Path(cls.tempdir.name), max_workers=1)
         cls.app.testing = True

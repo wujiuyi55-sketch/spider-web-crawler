@@ -5,7 +5,7 @@
 
 一个可直接运行的本地网页采集器。输入网址，抓取标题、正文、链接、图片、表格与页面元信息，在网页里浏览结果，并导出为 JSON / CSV。
 
-![蛛网界面示意图](docs/preview.svg)
+![蛛网界面](docs/screenshot.png)
 
 ## 功能
 
@@ -174,7 +174,9 @@ curl -X POST http://127.0.0.1:5000/api/crawl \
 ├── templates/index.html
 ├── static/css/app.css
 ├── static/js/app.js
-├── docs/preview.svg
+├── docs/
+│   ├── screenshot.png    # 界面截图
+│   └── preview.svg       # 矢量示意图
 ├── tests/                # 单元与集成测试
 ├── .github/workflows/    # GitHub Actions 测试
 ├── LICENSE
