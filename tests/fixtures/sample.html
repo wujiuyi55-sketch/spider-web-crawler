@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>测试页面 - 蛛网</title>
+  <meta name="description" content="这是一个用于测试网页解析器的页面。">
+  <meta name="keywords" content="爬虫, 测试, 数据">
+  <meta property="og:title" content="测试页面">
+  <meta property="og:image" content="/images/cover.png">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "结构化数据标题",
+    "url": "https://example.com/article"
+  }
+  </script>
+</head>
+<body>
+  <header><nav><a href="/">首页</a><a href="/about">关于</a></nav></header>
+  <main>
+    <h1>测试页面标题</h1>
+    <p>这是一段中文正文，用于验证文本抽取和字数统计。Hello crawler world.</p>
+    <h2>数据表格</h2>
+    <table>
+      <caption>示例数据</caption>
+      <tr><th>名称</th><th>数量</th></tr>
+      <tr><td>苹果</td><td>12</td></tr>
+      <tr><td>香蕉</td><td>8</td></tr>
+    </table>
+    <h2>链接与图片</h2>
+    <a href="/relative?x=1">站内链接</a>
+    <a href="https://example.org/path">站外链接</a>
+    <a href="/nofollow" rel="nofollow">不跟随链接</a>
+    <a href="javascript:void(0)">脚本链接</a>
+    <a href="/relative?x=1">重复链接</a>
+    <img src="/images/a.png" alt="图片 A">
+    <img data-src="/images/b.png" alt="延迟加载图片">
+    <p>结束语。</p>
+  </main>
+  <footer>© 2026</footer>
+</body>
+</html>

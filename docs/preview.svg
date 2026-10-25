@@ -1,55 +1,151 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
-  <title id="title">蛛网 Web Crawler</title>
-  <desc id="desc">输入网址，抓取结构化网页数据并导出 JSON 或 CSV。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000" role="img" aria-labelledby="title desc">
+  <title id="title">蛛网 Web Crawler 界面示意图</title>
+  <desc id="desc">暖色网页界面，包含网址输入框、采集深度选项、完成进度卡片和采集结果表格。</desc>
   <defs>
-    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#16241d" stroke-opacity="0.05"/>
+    <pattern id="grid" width="76" height="76" patternUnits="userSpaceOnUse">
+      <path d="M 76 0 L 0 0 0 76" fill="none" stroke="#16241d" stroke-opacity="0.045" stroke-width="1"/>
     </pattern>
-    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#16241d" flood-opacity="0.12"/>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#16241d" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="progressFill" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#d9f36b"/>
       <stop offset="1" stop-color="#b8e85a"/>
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="140%">
-      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#16241d" flood-opacity="0.14"/>
-    </filter>
+    <style>
+      .sans { font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif; }
+      .mono { font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace; }
+    </style>
   </defs>
-  <rect width="1200" height="620" fill="#f2efe5"/>
-  <rect width="1200" height="620" fill="url(#grid)"/>
-  <circle cx="1030" cy="120" r="280" fill="#d9f36b" fill-opacity="0.1"/>
 
-  <circle cx="90" cy="54" r="21" fill="#12241b"/>
-  <g transform="translate(90 54)" fill="none" stroke="#d9f36b" stroke-width="1.1">
-    <circle r="13"/><circle r="8"/><circle r="3"/>
-    <path d="M0 -16V16M-16 0H16M-10 -10 10 10M10 -10-10 10"/>
+  <rect width="1200" height="1000" fill="#f2efe5"/>
+  <rect width="1200" height="1000" fill="url(#grid)"/>
+  <circle cx="1060" cy="175" r="330" fill="#d9f36b" fill-opacity="0.08"/>
+
+  <!-- Decorative spider web -->
+  <g transform="translate(1040 175)" fill="none" stroke="#14563b" stroke-opacity="0.1" stroke-width="1">
+    <circle r="45"/><circle r="88"/><circle r="132"/><circle r="176"/><circle r="220"/>
+    <path d="M0 -230V230M-230 0H230M-163 -163 163 163M163 -163-163 163M-88 -214 88 214M-214 -88 214 88M88 -214-88 214M214 -88-214 88"/>
   </g>
-  <text x="123" y="50" font-family="Microsoft YaHei, sans-serif" font-size="20" font-weight="700" fill="#16241d">蛛网</text>
-  <text x="123" y="68" font-family="Consolas, monospace" font-size="9" fill="#6e796f" letter-spacing="2">WEB CRAWLER</text>
-  <circle cx="1000" cy="53" r="4" fill="#1d7451"/>
-  <text x="1012" y="57" font-family="Consolas, monospace" font-size="11" fill="#6e796f">本地运行 · v1.0.0</text>
-  <line x1="60" y1="92" x2="1140" y2="92" stroke="#16241d" stroke-opacity="0.12"/>
 
-  <text x="60" y="150" font-family="Consolas, monospace" font-size="10" fill="#6e796f" letter-spacing="2">01  INPUT → CRAWL → EXPORT</text>
-  <text x="60" y="230" font-family="Microsoft YaHei, sans-serif" font-size="62" font-weight="800" fill="#16241d" letter-spacing="-3">把网页，变成</text>
-  <rect x="58" y="264" width="360" height="26" fill="#d9f36b"/>
-  <text x="60" y="295" font-family="Microsoft YaHei, sans-serif" font-size="62" font-weight="800" fill="#16241d" letter-spacing="-3">可用的数据。</text>
-  <text x="60" y="345" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#33453b">输入一个网址，选择采集深度。抓取标题、正文、链接、图片与表格，</text>
-  <text x="60" y="367" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#33453b">整理成结构化数据，一键导出 JSON 或 CSV。</text>
+  <!-- Top bar -->
+  <g>
+    <circle cx="112" cy="52" r="21" fill="#12241b"/>
+    <g transform="translate(112 52)" fill="none" stroke="#d9f36b" stroke-width="1.1">
+      <circle r="13"/><circle r="8"/><circle r="3"/>
+      <path d="M0 -16V16M-16 0H16M-10 -10 10 10M10 -10-10 10"/>
+    </g>
+    <text x="145" y="48" class="sans" font-size="20" font-weight="700" fill="#16241d" letter-spacing="1">蛛网</text>
+    <text x="145" y="66" class="mono" font-size="8.5" fill="#6e796f" letter-spacing="2">WEB CRAWLER</text>
+    <circle cx="992" cy="51" r="4" fill="#1d7451"/>
+    <text x="1004" y="55" class="mono" font-size="11" fill="#6e796f">本地运行</text>
+    <text x="1070" y="55" class="mono" font-size="11" fill="#929b91">v1.0.0</text>
+    <line x1="100" y1="88" x2="1100" y2="88" stroke="#16241d" stroke-opacity="0.12"/>
+  </g>
 
-  <g filter="url(#shadow)"><rect x="60" y="405" width="1080" height="92" rx="18" fill="#fffdf7" stroke="#ddd9cc"/></g>
-  <rect x="82" y="425" width="1036" height="52" rx="12" fill="#f8f5eb" stroke="#c5c1b2"/>
-  <text x="105" y="457" font-family="Microsoft YaHei, sans-serif" font-size="16" fill="#6e796f">https://example.com</text>
-  <rect x="1010" y="433" width="96" height="36" rx="8" fill="#14563b"/>
-  <text x="1028" y="456" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="600" fill="#fffdf7">开始采集</text>
+  <!-- Hero -->
+  <g class="sans">
+    <text x="100" y="145" class="mono" font-size="10.5" fill="#6e796f" letter-spacing="2">01  INPUT → CRAWL → EXPORT</text>
+    <text x="100" y="218" font-size="60" font-weight="800" fill="#16241d" letter-spacing="-3">把网页，变成</text>
+    <rect x="98" y="252" width="355" height="26" fill="#d9f36b"/>
+    <text x="100" y="283" font-size="60" font-weight="800" fill="#16241d" letter-spacing="-3">可用的数据。</text>
+    <text x="100" y="338" font-size="14" fill="#33453b">输入一个网址，选择采集深度。抓取标题、正文、链接、图片与表格，</text>
+    <text x="100" y="360" font-size="14" fill="#33453b">整理成结构化数据，一键导出 JSON 或 CSV。</text>
+  </g>
 
-  <rect x="60" y="525" width="530" height="52" rx="14" fill="#12241b"/>
-  <circle cx="88" cy="551" r="14" fill="#193127" stroke="#d9f36b" stroke-opacity="0.4"/>
-  <circle cx="88" cy="551" r="3" fill="#d9f36b"/>
-  <text x="112" y="548" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="600" fill="#f3f1e6">采集完成，页面数据已就绪</text>
-  <text x="112" y="565" font-family="Consolas, monospace" font-size="8.5" fill="#f3f1e6" opacity="0.5">example.com · 1 个页面 · 0.9s</text>
-  <rect x="78" y="577" width="492" height="5" rx="3" fill="#d9f36b"/>
+  <!-- Form card -->
+  <g filter="url(#cardShadow)">
+    <rect x="100" y="400" width="1000" height="205" rx="20" fill="#fffdf7" stroke="#ddd9cc"/>
+  </g>
+  <text x="1068" y="416" class="mono" font-size="7.5" fill="#929b91" letter-spacing="1.5">NEW CRAWL</text>
+  <rect x="122" y="423" width="956" height="59" rx="12" fill="#f8f5eb" stroke="#c5c1b2"/>
+  <g transform="translate(150 452)" fill="none" stroke="#14563b" stroke-width="1.4">
+    <circle r="9"/><path d="M-9 0H9M0 -9C4 -5 5 -2 5 1S3 7 0 9C-3 7-4 4-4 1S-3-5 0-9Z"/>
+  </g>
+  <text x="178" y="458" class="sans" font-size="15" fill="#6e796f">https://example.com</text>
+  <rect x="944" y="432" width="116" height="41" rx="9" fill="#14563b"/>
+  <text x="962" y="457" class="sans" font-size="12.5" font-weight="600" fill="#fffdf7">开始采集</text>
+  <circle cx="1036" cy="452" r="12" fill="#d9f36b"/>
+  <path d="M1031 452H1041M1037 448L1041 452L1037 456" fill="none" stroke="#12241b" stroke-width="1.5"/>
 
-  <text x="620" y="548" font-family="Consolas, monospace" font-size="9" fill="#6e796f" letter-spacing="2">03  RESULT</text>
-  <text x="620" y="587" font-family="Microsoft YaHei, sans-serif" font-size="34" font-weight="750" fill="#16241d">采集结果</text>
-  <rect x="60" y="592" width="1080" height="1" fill="#ddd9cc"/>
-  <text x="620" y="612" font-family="Consolas, monospace" font-size="10" fill="#6e796f">JSON / CSV READY</text>
+  <g class="sans">
+    <text x="122" y="515" font-size="10" font-weight="600" fill="#6e796f" letter-spacing="1">采集深度</text>
+    <rect x="122" y="528" width="330" height="36" rx="9" fill="#efede3" stroke="#ddd9cc"/>
+    <rect x="232" y="531" width="105" height="30" rx="7" fill="#fffdf7"/>
+    <text x="142" y="550" font-size="11" fill="#6e796f">仅当前页</text>
+    <text x="254" y="550" font-size="11" font-weight="600" fill="#16241d">一层链接</text>
+    <text x="353" y="550" font-size="11" fill="#6e796f">两层链接</text>
+
+    <text x="492" y="515" font-size="10" font-weight="600" fill="#6e796f" letter-spacing="1">最多页面</text>
+    <rect x="492" y="528" width="110" height="36" rx="9" fill="#f8f5eb" stroke="#ddd9cc"/>
+    <text x="507" y="551" class="mono" font-size="11" fill="#16241d">10</text>
+    <text x="575" y="551" font-size="9.5" fill="#929b91">页</text>
+
+    <text x="632" y="515" font-size="10" font-weight="600" fill="#6e796f" letter-spacing="1">请求间隔</text>
+    <rect x="632" y="528" width="110" height="36" rx="9" fill="#f8f5eb" stroke="#ddd9cc"/>
+    <text x="647" y="551" class="mono" font-size="11" fill="#16241d">0.6</text>
+    <text x="715" y="551" font-size="9.5" fill="#929b91">秒</text>
+
+    <line x1="122" y1="582" x2="1078" y2="582" stroke="#ddd9cc" stroke-dasharray="3 4"/>
+    <text x="122" y="596" font-size="10" fill="#6e796f">高级设置</text>
+    <path d="M183 592L187 596L191 592" fill="none" stroke="#6e796f" stroke-width="1.1"/>
+  </g>
+
+  <!-- Progress card -->
+  <g filter="url(#softShadow)">
+    <rect x="100" y="630" width="1000" height="168" rx="20" fill="#12241b"/>
+  </g>
+  <circle cx="152" cy="684" r="30" fill="#193127" stroke="#d9f36b" stroke-opacity="0.35"/>
+  <circle cx="152" cy="684" r="19" fill="none" stroke="#d9f36b" stroke-opacity="0.16"/>
+  <circle cx="152" cy="684" r="9" fill="none" stroke="#d9f36b" stroke-opacity="0.22"/>
+  <path d="M152 654A30 30 0 0 1 179 671L152 684Z" fill="#d9f36b" fill-opacity="0.43"/>
+  <circle cx="152" cy="684" r="3" fill="#d9f36b"/>
+
+  <g class="sans">
+    <text x="198" y="666" class="mono" font-size="9" font-weight="600" fill="#d9f36b" letter-spacing="2">COMPLETE</text>
+    <text x="198" y="692" font-size="18" font-weight="600" fill="#f3f1e6">采集完成，页面数据已就绪</text>
+    <text x="198" y="712" class="mono" font-size="9.5" fill="#f3f1e6" opacity="0.48">https://example.com/</text>
+  </g>
+  <rect x="122" y="738" width="956" height="7" rx="4" fill="#ffffff" fill-opacity="0.1"/>
+  <rect x="122" y="738" width="956" height="7" rx="4" fill="url(#progressFill)"/>
+  <text x="122" y="760" class="mono" font-size="8.5" fill="#f3f1e6" opacity="0.48">1 / 1 页</text>
+  <text x="1054" y="760" class="mono" font-size="8.5" fill="#f3f1e6" opacity="0.48">100%</text>
+
+  <g>
+    <rect x="122" y="770" width="956" height="0.7" fill="#ffffff" opacity="0.08"/>
+    <g class="sans" font-size="9" fill="#f3f1e6">
+      <text x="132" y="787" opacity="0.45">已处理</text><text x="185" y="787" class="mono" font-size="12">1</text>
+      <text x="380" y="787" opacity="0.45">成功</text><text x="420" y="787" class="mono" font-size="12">1</text>
+      <text x="620" y="787" opacity="0.45">失败</text><text x="660" y="787" class="mono" font-size="12">0</text>
+      <text x="860" y="787" opacity="0.45">用时</text><text x="900" y="787" class="mono" font-size="12">0.9s</text>
+    </g>
+  </g>
+
+  <!-- Results -->
+  <g class="sans">
+    <text x="100" y="850" class="mono" font-size="9.5" fill="#6e796f" letter-spacing="2">03  RESULT</text>
+    <text x="100" y="890" font-size="32" font-weight="750" fill="#16241d" letter-spacing="-1">采集结果</text>
+    <text x="100" y="910" font-size="11.5" fill="#6e796f">example.com · 1 个页面 · 0.9s</text>
+  </g>
+  <g>
+    <rect x="100" y="928" width="58" height="26" rx="6" fill="#fffdf7" stroke="#ddd9cc"/>
+    <text x="110" y="945" class="mono" font-size="9.5" fill="#16241d">1 页面</text>
+    <rect x="166" y="928" width="58" height="26" rx="6" fill="#fffdf7" stroke="#ddd9cc"/>
+    <text x="176" y="945" class="mono" font-size="9.5" fill="#16241d">25 字</text>
+    <rect x="232" y="928" width="62" height="26" rx="6" fill="#fffdf7" stroke="#ddd9cc"/>
+    <text x="242" y="945" class="mono" font-size="9.5" fill="#16241d">0 链接</text>
+    <rect x="968" y="928" width="132" height="26" rx="6" fill="#fffdf7" stroke="#ddd9cc"/>
+    <text x="982" y="945" font-size="10" fill="#6e796f">筛选标题或网址</text>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="100" y="968" width="1000" height="38" rx="10" fill="#fffdf7" stroke="#ddd9cc"/>
+  </g>
+  <text x="118" y="992" class="sans" font-size="11" font-weight="600" fill="#16241d">Example Domain</text>
+  <text x="360" y="992" class="mono" font-size="9" fill="#929b91">https://example.com/</text>
+  <text x="900" y="992" class="mono" font-size="9" fill="#6e796f">25</text>
+  <text x="975" y="992" class="mono" font-size="9" fill="#1d7451">● 200</text>
+  <text x="1035" y="992" class="sans" font-size="9.5" fill="#14563b">查看 →</text>
 </svg>

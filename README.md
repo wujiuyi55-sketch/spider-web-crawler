@@ -174,7 +174,10 @@ curl -X POST http://127.0.0.1:5000/api/crawl \
 ├── templates/index.html
 ├── static/css/app.css
 ├── static/js/app.js
+├── docs/preview.svg
 ├── tests/                # 单元与集成测试
+├── .github/workflows/    # GitHub Actions 测试
+├── LICENSE
 └── start.bat
 ```
 
