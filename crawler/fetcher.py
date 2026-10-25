@@ -99,27 +99,44 @@ class Fetcher:
         for _ in range(MAX_REDIRECTS + 1):
             ensure_safe_url(current, allow_private=self.config.allow_private)
             headers = {"Accept": accept} if accept else {}
-            try:
-                response = self.session.get(
-                    current,
-                    timeout=(min(10.0, self.config.timeout), self.config.timeout),
-                    allow_redirects=False,
-                    stream=True,
-                    verify=self.config.verify_ssl,
-                    headers=headers,
-                )
-            except requests.exceptions.SSLError as exc:
-                raise FetchError(
-                    "HTTPS 证书校验失败。若你信任该站点，可在高级设置中忽略证书错误"
-                ) from exc
-            except requests.exceptions.Timeout as exc:
-                raise FetchError(
-                    f"请求超时（超过 {self.config.timeout:g} 秒）"
-                ) from exc
-            except requests.exceptions.ConnectionError as exc:
-                raise FetchError("无法连接到服务器，请检查网址或网络") from exc
-            except requests.exceptions.RequestException as exc:
-                raise FetchError(f"请求失败：{exc.__class__.__name__}") from exc
+            response = None
+            for attempt in range(2):
+                try:
+                    response = self.session.get(
+                        current,
+                        timeout=(
+                            min(10.0, self.config.timeout),
+                            self.config.timeout,
+                        ),
+                        allow_redirects=False,
+                        stream=True,
+                        verify=self.config.verify_ssl,
+                        headers=headers,
+                    )
+                    break
+                except requests.exceptions.SSLError as exc:
+                    raise FetchError(
+                        "HTTPS 证书校验失败。若你信任该站点，可在高级设置中忽略证书错误"
+                    ) from exc
+                except requests.exceptions.Timeout as exc:
+                    raise FetchError(
+                        f"请求超时（超过 {self.config.timeout:g} 秒）"
+                    ) from exc
+                except requests.exceptions.ConnectionError as exc:
+                    if attempt == 0:
+                        # 本地服务或长连接偶尔会刚建立就断开，换一条连接重试一次。
+                        self.session.close()
+                        if self.cancel_event.wait(0.25):
+                            raise CrawlCancelled("采集已取消")
+                        continue
+                    raise FetchError(
+                        "无法连接到服务器，请检查网址或网络"
+                    ) from exc
+                except requests.exceptions.RequestException as exc:
+                    raise FetchError(f"请求失败：{exc.__class__.__name__}") from exc
+
+            if response is None:
+                raise FetchError("无法连接到服务器，请检查网址或网络")
 
             with response:
                 location = response.headers.get("Location")
